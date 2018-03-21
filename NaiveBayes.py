@@ -36,6 +36,8 @@ class NaiveBayes:
         self.word_pos = dict()
         self.word_neg = dict()
         self.word_num = dict()
+        self.posword_num = 0
+        self.negword_num = 0
 
         # TODO
         # Implement a multinomial naive bayes classifier and a naive bayes classifier with boolean features. The flag
@@ -64,14 +66,14 @@ class NaiveBayes:
         p_neg = log(self.neg_num/(self.pos_num + self.neg_num))
         for word in words:
             if word not in self.word_pos.key():
-                p_pos += log(0.00000001)
+                p_pos += log(1e-10)
             else:
-                p_pos += log(self.word_pos[word]/self.word_num[word])
+                p_pos += log(self.word_pos[word]/self.posword_num)
             
             if word not in self.word_neg.key():
-                p_neg += log(0.00000001)
+                p_neg += log(1e-10)
             else:
-                p_neg += log(self.word_neg[word]/self.word_num[word])
+                p_neg += log(self.word_neg[word]/self.posword_num)
 
         if p_pos > p_neg:
             return 'pos'
@@ -94,8 +96,10 @@ class NaiveBayes:
         for word in words:
             if classifier == 'pos':
                 self.word_pos[word] += 1
+                self.posword_num += 1
             else:
                 self.word_neg[word] += 1
+                self.negword_num += 1
             self.word_num[word] += 1
 
         pass
@@ -181,7 +185,7 @@ class NaiveBayes:
         splits = []
         trainDir = args[0]
         if len(args) == 1:
-            print '[INFO]\tOn %d-fold of CV with \t%s' % (self.numFolds, trainDir)
+            print ('[INFO]\tOn %d-fold of CV with \t%s' % (self.numFolds, trainDir))
 
             posDocTrain = os.listdir('%s/pos/' % trainDir)
             negDocTrain = os.listdir('%s/neg/' % trainDir)
@@ -207,7 +211,7 @@ class NaiveBayes:
         elif len(args) == 2:
             split = self.TrainSplit()
             testDir = args[1]
-            print '[INFO]\tTraining on data set:\t%s testing on data set:\t%s' % (trainDir, testDir)
+            print ('[INFO]\tTraining on data set:\t%s testing on data set:\t%s' % (trainDir, testDir))
             posDocTrain = os.listdir('%s/pos/' % trainDir)
             negDocTrain = os.listdir('%s/neg/' % trainDir)
             for fileName in posDocTrain:
@@ -270,10 +274,10 @@ def test10Fold(args, stopWordsFilter, naiveBayesBool, bestModel):
 
         accuracy = accuracy / len(split.test)
         avgAccuracy += accuracy
-        print '[INFO]\tFold %d Accuracy: %f' % (fold, accuracy)
+        print ('[INFO]\tFold %d Accuracy: %f' % (fold, accuracy))
         fold += 1
     avgAccuracy = avgAccuracy / fold
-    print '[INFO]\tAccuracy: %f' % avgAccuracy
+    print ('[INFO]\tAccuracy: %f' % avgAccuracy)
 
 
 def classifyFile(stopWordsFilter, naiveBayesBool, bestModel, trainDir, testFilePath):
@@ -284,7 +288,7 @@ def classifyFile(stopWordsFilter, naiveBayesBool, bestModel, trainDir, testFileP
     trainSplit = classifier.trainSplit(trainDir)
     classifier.train(trainSplit)
     testFile = classifier.readFile(testFilePath)
-    print classifier.classify(testFile)
+    print (classifier.classify(testFile))
 
 
 def main():
